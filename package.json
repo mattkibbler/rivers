@@ -1,24 +1,33 @@
 {
-  "name": "rivers",
-  "version": "0.0.1",
-  "description": "Generative waterways",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mattkibbler/rivers.git"
-  },
-  "keywords": [
-    "generative",
-    "simulated",
-    "rivers"
-  ],
-  "author": "Matt Kibbler",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mattkibbler/rivers/issues"
-  },
-  "homepage": "https://github.com/mattkibbler/rivers#readme"
+	"name": "rivers",
+	"version": "0.0.1",
+	"description": "Generative waterways",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mattkibbler/rivers.git"
+	},
+	"keywords": [
+		"generative",
+		"simulated",
+		"rivers"
+	],
+	"author": "Matt Kibbler",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/mattkibbler/rivers/issues"
+	},
+	"homepage": "https://github.com/mattkibbler/rivers#readme",
+	"devDependencies": {
+		"@types/node": "^22.7.4",
+		"prettier": "3.3.3",
+		"typescript": "^5.6.2",
+		"vite": "^5.4.8"
+	}
 }
