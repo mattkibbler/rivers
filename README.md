@@ -16,3 +16,8 @@ The project is compiled using Vite. All commands are run from the root of the pr
 | `npm run dev`          | Starts local dev server       |
 | `npm run build`        | Build your production site to `./dist/`          |
 | `npm run preview`      | Preview your build locally     |
+
+
+## Contributing
+
+If you'd like to contribute, please fork the repository and open a pull request to the `main` branch.
