@@ -1,4 +1,5 @@
 import DOMRenderer from "./Graphics/DOM/DOMRenderer";
+import { el, style } from "./Helpers/DOM";
 
 export default class App {
 	appContainer: HTMLElement;
@@ -9,21 +10,61 @@ export default class App {
 	tileSize: number = 20;
 	renderer: DOMRenderer;
 	padding: number = 1;
+	helperTextContainer: HTMLElement;
+	tileContainer: HTMLElement;
 	constructor(appContainer: HTMLElement) {
 		this.appContainer = appContainer;
 		this.mouseMoveStart = null;
 		this.viewport = { width: appContainer.clientWidth, height: appContainer.clientHeight };
 		this.lastScrollOffset = { x: 0, y: 0 };
 		this.scrollOffset = { x: 0, y: 0 };
-		this.renderer = new DOMRenderer(this);
-		this.addListeners();
 
-		this.viewport.width = this.appContainer.clientWidth;
-		this.viewport.height = this.appContainer.clientHeight;
+		this.tileContainer = this.createTileContainer();
+		this.helperTextContainer = this.createHelperTextContainer();
+
+		this.viewport.width = this.tileContainer.clientWidth;
+		this.viewport.height = this.tileContainer.clientHeight;
+
+		this.renderer = new DOMRenderer(this);
 
 		this.appContainer.style.cursor = "grab";
 
 		this.renderer.setVisibleTiles(this.calculateVisibleTiles());
+
+		this.addListeners();
+	}
+	private createHelperTextContainer() {
+		const helperTextContainer = el("div", this.appContainer);
+		const helperText = el("p", helperTextContainer);
+		helperText.innerText = "Click and drag within the red box to explore the tile space.";
+		style(helperTextContainer, {
+			fontFamily: "monospace",
+			textAlign: "center",
+			position: "absolute",
+			bottom: "0px",
+			left: "0px",
+			right: "0px",
+			padding: "20px",
+		});
+		style(helperText, {
+			background: "#FFF",
+			display: "inline-block",
+			paddingLeft: "4px",
+			paddingRight: "4px",
+		});
+		return helperTextContainer;
+	}
+	private createTileContainer() {
+		const tileContainer = el("div", this.appContainer);
+		tileContainer.setAttribute("id", "tileContainer");
+		style(tileContainer, {
+			position: "absolute",
+			left: "25%",
+			right: "25%",
+			bottom: "25%",
+			top: "25%",
+		});
+		return tileContainer;
 	}
 	private addListeners() {
 		const handleMoveStart = (e: MouseEvent | TouchEvent) => {
@@ -63,7 +104,7 @@ export default class App {
 			this.viewport.height = entries[0].contentRect.height;
 			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
 		});
-		appContainerResizeObserver.observe(this.appContainer);
+		appContainerResizeObserver.observe(this.tileContainer);
 	}
 	calculateVisibleTiles() {
 		const paddedScrollOffset = { x: this.scrollOffset.x + this.tileSize * this.padding, y: this.scrollOffset.y + this.tileSize * this.padding };

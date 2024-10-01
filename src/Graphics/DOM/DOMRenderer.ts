@@ -13,7 +13,8 @@ export default class DOMRenderer {
 		this.tileMap = new Map();
 
 		this.viewPane = document.createElement("div");
-		this.app.appContainer.appendChild(this.viewPane);
+		this.viewPane.setAttribute("id", "rendererViewPane");
+		this.app.tileContainer.appendChild(this.viewPane);
 	}
 	setOffset(offset: { x: number; y: number }) {
 		this.offset.x = offset.x;
