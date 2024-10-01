@@ -26,26 +26,37 @@ export default class App {
 		this.renderer.setVisibleTiles(this.calculateVisibleTiles());
 	}
 	private addListeners() {
-		this.appContainer.addEventListener("mousedown", (e) => {
-			this.mouseMoveStart = { x: e.clientX, y: e.clientY };
+		const handleMoveStart = (e: MouseEvent | TouchEvent) => {
+			const x = "touches" in e ? e.touches[0].clientX : e.clientX;
+			const y = "touches" in e ? e.touches[0].clientY : e.clientY;
+			this.mouseMoveStart = { x, y };
 			this.appContainer.style.cursor = "grabbing";
-		});
-		this.appContainer.addEventListener("mouseup", () => {
+		};
+		const handleMoveEnd = () => {
 			this.mouseMoveStart = null;
 			this.lastScrollOffset = { x: this.scrollOffset.x, y: this.scrollOffset.y };
 			this.renderer.setOffset(this.scrollOffset);
 			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
 			this.appContainer.style.cursor = "grab";
-		});
-		this.appContainer.addEventListener("mousemove", (e) => {
+		};
+		const handleMove = (e: MouseEvent | TouchEvent) => {
 			if (this.mouseMoveStart === null) {
 				return;
 			}
-			this.scrollOffset.x = this.lastScrollOffset.x + (e.clientX - this.mouseMoveStart.x);
-			this.scrollOffset.y = this.lastScrollOffset.y + (e.clientY - this.mouseMoveStart.y);
+			const x = "touches" in e ? e.touches[0].clientX : e.clientX;
+			const y = "touches" in e ? e.touches[0].clientY : e.clientY;
+			this.scrollOffset.x = this.lastScrollOffset.x + (x - this.mouseMoveStart.x);
+			this.scrollOffset.y = this.lastScrollOffset.y + (y - this.mouseMoveStart.y);
 
 			this.renderer.setOffset(this.scrollOffset);
-		});
+		};
+		this.appContainer.addEventListener("mousedown", handleMoveStart);
+		this.appContainer.addEventListener("mouseup", handleMoveEnd);
+		this.appContainer.addEventListener("mousemove", handleMove);
+
+		this.appContainer.addEventListener("touchstart", handleMoveStart);
+		this.appContainer.addEventListener("touchend", handleMoveEnd);
+		this.appContainer.addEventListener("touchmove", handleMove);
 
 		const appContainerResizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
 			this.viewport.width = entries[0].contentRect.width;
