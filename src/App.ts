@@ -30,7 +30,7 @@ export default class App {
 			this.mouseMoveStart = { x: e.clientX, y: e.clientY };
 			this.appContainer.style.cursor = "grabbing";
 		});
-		this.appContainer.addEventListener("mouseup", (e) => {
+		this.appContainer.addEventListener("mouseup", () => {
 			this.mouseMoveStart = null;
 			this.lastScrollOffset = { x: this.scrollOffset.x, y: this.scrollOffset.y };
 			this.renderer.setOffset(this.scrollOffset);
