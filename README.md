@@ -6,6 +6,16 @@ A web-based generative simulation playing with the formation and flow of waterwa
 
 As a challenge and a bit of fun. Like a river I have a starting point and will work out my path as I go.
 
+## Demo
+
+Take a look at the project in action:
+
+| Version                | Demo Link       |
+| :--------------------- | :----------------------------------------------- |
+| v0.0.1 | https://mattkibbler.github.io/rivers/version-0.0.1/ |
+
+
+
 ## Usage
 
 The project is compiled using Vite. All commands are run from the root of the project, from a terminal:
