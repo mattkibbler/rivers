@@ -12,6 +12,7 @@ export default class App {
 	padding: number = 1;
 	helperTextContainer: HTMLElement;
 	tileContainer: HTMLElement;
+	tileContainerFrame: HTMLElement;
 	constructor(appContainer: HTMLElement) {
 		this.appContainer = appContainer;
 		this.mouseMoveStart = null;
@@ -20,6 +21,7 @@ export default class App {
 		this.scrollOffset = { x: 0, y: 0 };
 
 		this.tileContainer = this.createTileContainer();
+		this.tileContainerFrame = this.createTileContainerFrame();
 		this.helperTextContainer = this.createHelperTextContainer();
 
 		this.viewport.width = this.tileContainer.clientWidth;
@@ -65,6 +67,19 @@ export default class App {
 			top: "25%",
 		});
 		return tileContainer;
+	}
+	private createTileContainerFrame() {
+		const tileContainerFrame = el("div", this.appContainer);
+		tileContainerFrame.setAttribute("id", "tileContainerFrame");
+		style(tileContainerFrame, {
+			position: "absolute",
+			left: "25%",
+			right: "25%",
+			bottom: "25%",
+			top: "25%",
+			border: "2px solid red",
+		});
+		return tileContainerFrame;
 	}
 	private addListeners() {
 		const handleMoveStart = (e: MouseEvent | TouchEvent) => {
