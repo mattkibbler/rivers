@@ -1,16 +1,19 @@
 import App from "@/App";
+import DOMTile from "./DOMTile";
 
 export default class DOMRenderer {
 	offset: { x: number; y: number };
 	viewPane: HTMLElement;
 	app: App;
-	tileMap: Map<string, HTMLElement>;
+	tileMap: Map<string, DOMTile>;
+	tilePool: DOMTile[];
 	constructor(app: App) {
 		this.offset = { x: 0, y: 0 };
 
 		this.app = app;
 
 		this.tileMap = new Map();
+		this.tilePool = [];
 
 		this.viewPane = document.createElement("div");
 		this.viewPane.setAttribute("id", "rendererViewPane");
@@ -22,28 +25,41 @@ export default class DOMRenderer {
 		this.viewPane.style.transform = `translateX(${this.offset.x}px) translateY(${this.offset.y}px)`;
 	}
 	setVisibleTiles(visible: { startX: number; startY: number; endX: number; endY: number }) {
+		for (const tile of this.tileMap.values()) {
+			if (
+				tile.x !== null &&
+				tile.y !== null &&
+				(tile.x < visible.startX ||
+					tile.y < visible.startY ||
+					tile.x > visible.endX ||
+					tile.y > visible.endY)
+			) {
+				this.removeTile(tile);
+			}
+		}
 		for (let x = visible.startX; x < visible.endX; x++) {
 			for (let y = visible.startY; y < visible.endY; y++) {
 				this.addTile(x, y);
 			}
 		}
 	}
-	addTile(x: number, y: number) {
+	private removeTile(tile: DOMTile) {
+		tile.remove();
+		this.tilePool.push(tile);
+		this.tileMap.delete(`${tile.x},${tile.y}`);
+	}
+	private addTile(x: number, y: number) {
 		const tileKey = `${x},${y}`;
 		if (!this.tileMap.has(tileKey)) {
-			const tile = this.createTile(x, y);
-			this.viewPane.appendChild(tile);
-			this.tileMap.set(tileKey, tile); // Store tile reference
+			this.tileMap.set(tileKey, this.getTile(x, y)); // Store tile reference
 		}
 	}
-	private createTile(x: number, y: number): HTMLElement {
-		const el = document.createElement("div");
-		el.style.position = "absolute";
-		el.style.width = `${this.app.tileSize}px`;
-		el.style.height = `${this.app.tileSize}px`;
-		el.style.transform = `translateX(${this.app.tileSize * x}px) translateY(${this.app.tileSize * y}px)`;
-		el.style.backgroundColor = "blue";
-		el.style.border = "1px solid yellow";
-		return el;
+	private getTile(x: number, y: number): DOMTile {
+		const tile =
+			this.tilePool.length > 0
+				? this.tilePool.pop()!
+				: new DOMTile(this.viewPane, this.app.tileSize);
+		tile.place(x, y);
+		return tile;
 	}
 }

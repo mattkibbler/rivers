@@ -13,6 +13,7 @@ export default class App {
 	helperTextContainer: HTMLElement;
 	tileContainer: HTMLElement;
 	tileContainerFrame: HTMLElement;
+	movementEnabled: boolean = false;
 	constructor(appContainer: HTMLElement) {
 		this.appContainer = appContainer;
 		this.mouseMoveStart = null;
@@ -29,16 +30,53 @@ export default class App {
 
 		this.renderer = new DOMRenderer(this);
 
-		this.appContainer.style.cursor = "grab";
+		this.enableMovement();
 
 		this.renderer.setVisibleTiles(this.calculateVisibleTiles());
 
 		this.addListeners();
 	}
+	private enableMovement() {
+		this.appContainer.style.cursor = "grab";
+		this.movementEnabled = true;
+	}
+	private disableMovement() {
+		this.appContainer.style.cursor = "default";
+		this.movementEnabled = false;
+	}
 	private createHelperTextContainer() {
 		const helperTextContainer = el("div", this.appContainer);
 		const helperText = el("p", helperTextContainer);
+		const explainerContainer = el("p", helperTextContainer);
+		const explainerButton = el("button", explainerContainer);
+		const explainerDialog = el("dialog", explainerContainer) as HTMLDialogElement;
+
 		helperText.innerText = "Click and drag within the red box to explore the tile space.";
+		explainerButton.innerText = "What is this?";
+		explainerDialog.innerHTML = `
+			<p>It's a tile-based map which allows you to move by clicking and dragging. The actual map/tile content will be added soon.</p>
+			<p>Map tiles are DOM elements which are recyled as they move out of view, each displays it's ID number so you can see how they are moved around and re-used.</p>
+			<p>Using a canvas to render the map would make more sense, but I thought it would be more fun to use DOM elements.</p>
+			<p>The red box indicates the edges of the map viewport, the tiles which overflow this box would be hidden in a finished product but they are visible here to illustrate how the tile map works.</p>
+			<p><button type="button">Close</button></p>
+		`;
+
+		explainerButton.addEventListener("click", () => {
+			this.disableMovement();
+			explainerDialog.showModal();
+		});
+
+		explainerDialog.querySelector("button")?.addEventListener("click", (e) => {
+			e.preventDefault();
+			this.enableMovement();
+			explainerDialog.close();
+		});
+
+		style(explainerDialog.querySelector("button")!, {
+			fontFamily: "monospace",
+			fontSize: "12px",
+		});
+
 		style(helperTextContainer, {
 			fontFamily: "monospace",
 			textAlign: "center",
@@ -53,6 +91,19 @@ export default class App {
 			display: "inline-block",
 			paddingLeft: "4px",
 			paddingRight: "4px",
+			marginTop: "0px",
+			marginBottom: "0px",
+		});
+		style(explainerContainer, {
+			marginTop: "10px",
+			marginBottom: "0px",
+		});
+		style(explainerButton, {
+			fontFamily: "monospace",
+			fontSize: "12px",
+		});
+		style(explainerDialog, {
+			lineHeight: "1.3rem",
 		});
 		return helperTextContainer;
 	}
@@ -83,12 +134,18 @@ export default class App {
 	}
 	private addListeners() {
 		const handleMoveStart = (e: MouseEvent | TouchEvent) => {
+			if (!this.movementEnabled) {
+				return;
+			}
 			const x = "touches" in e ? e.touches[0].clientX : e.clientX;
 			const y = "touches" in e ? e.touches[0].clientY : e.clientY;
 			this.mouseMoveStart = { x, y };
 			this.appContainer.style.cursor = "grabbing";
 		};
 		const handleMoveEnd = () => {
+			if (!this.movementEnabled) {
+				return;
+			}
 			this.mouseMoveStart = null;
 			this.lastScrollOffset = { x: this.scrollOffset.x, y: this.scrollOffset.y };
 			this.renderer.setOffset(this.scrollOffset);
@@ -96,7 +153,7 @@ export default class App {
 			this.appContainer.style.cursor = "grab";
 		};
 		const handleMove = (e: MouseEvent | TouchEvent) => {
-			if (this.mouseMoveStart === null) {
+			if (!this.movementEnabled || this.mouseMoveStart === null) {
 				return;
 			}
 			const x = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -105,6 +162,7 @@ export default class App {
 			this.scrollOffset.y = this.lastScrollOffset.y + (y - this.mouseMoveStart.y);
 
 			this.renderer.setOffset(this.scrollOffset);
+			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
 		};
 		this.appContainer.addEventListener("mousedown", handleMoveStart);
 		this.appContainer.addEventListener("mouseup", handleMoveEnd);
@@ -122,7 +180,10 @@ export default class App {
 		appContainerResizeObserver.observe(this.tileContainer);
 	}
 	calculateVisibleTiles() {
-		const paddedScrollOffset = { x: this.scrollOffset.x + this.tileSize * this.padding, y: this.scrollOffset.y + this.tileSize * this.padding };
+		const paddedScrollOffset = {
+			x: this.scrollOffset.x + this.tileSize * this.padding,
+			y: this.scrollOffset.y + this.tileSize * this.padding,
+		};
 		const paddedViewPort = {
 			width: this.viewport.width + this.tileSize * (2 * this.padding),
 			height: this.viewport.height + this.tileSize * (2 * this.padding),
