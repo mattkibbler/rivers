@@ -60,6 +60,7 @@ export default class DOMRenderer {
 				? this.tilePool.pop()!
 				: new DOMTile(this.viewPane, this.app.tileSize);
 		tile.place(x, y);
+		tile.setContent(this.app.tileService.getTileData(x, y));
 		return tile;
 	}
 }

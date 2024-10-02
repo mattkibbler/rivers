@@ -1,3 +1,12 @@
+import TileMaterial from "@/Enums/TileMaterial";
+import TileData from "@/Interfaces/TileData";
+
+const TILE_COLORS = {
+	[TileMaterial.STONE]: "#808080", // Gray
+	[TileMaterial.GRASS]: "#00FF00", // Green
+	[TileMaterial.DIRT]: "#8B4513", // Brown
+};
+
 let ID_INCREMENTER = 0;
 export default class DOMTile {
 	id: number;
@@ -31,5 +40,8 @@ export default class DOMTile {
 	}
 	remove() {
 		this.el.style.display = "none";
+	}
+	setContent(tileData: TileData) {
+		this.el.style.backgroundColor = TILE_COLORS[tileData.material];
 	}
 }

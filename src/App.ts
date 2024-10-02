@@ -1,5 +1,7 @@
 import DOMRenderer from "./Graphics/DOM/DOMRenderer";
 import { el, style } from "./Helpers/DOM";
+import TileServiceInterface from "./Interfaces/TileServiceInterface";
+import SimpleTileService from "./Services/SimpleTileService";
 
 export default class App {
 	appContainer: HTMLElement;
@@ -14,6 +16,7 @@ export default class App {
 	tileContainer: HTMLElement;
 	tileContainerFrame: HTMLElement;
 	movementEnabled: boolean = false;
+	tileService: TileServiceInterface;
 	constructor(appContainer: HTMLElement) {
 		this.appContainer = appContainer;
 		this.mouseMoveStart = null;
@@ -28,6 +31,7 @@ export default class App {
 		this.viewport.width = this.tileContainer.clientWidth;
 		this.viewport.height = this.tileContainer.clientHeight;
 
+		this.tileService = new SimpleTileService();
 		this.renderer = new DOMRenderer(this);
 
 		this.enableMovement();
