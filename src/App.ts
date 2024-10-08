@@ -36,7 +36,7 @@ export default class App {
 
 		this.enableMovement();
 
-		this.renderer.setVisibleTiles(this.calculateVisibleTiles());
+		this.renderer.setVisibleTiles(this.calculateVisibleRegion());
 
 		this.addListeners();
 	}
@@ -128,7 +128,6 @@ export default class App {
 			right: "25%",
 			bottom: "25%",
 			top: "25%",
-			overflow: "hidden",
 		});
 		return tileContainer;
 	}
@@ -162,7 +161,7 @@ export default class App {
 			this.mouseMoveStart = null;
 			this.lastScrollOffset = { x: this.scrollOffset.x, y: this.scrollOffset.y };
 			this.renderer.setOffset(this.scrollOffset);
-			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
+			this.renderer.setVisibleTiles(this.calculateVisibleRegion());
 			this.appContainer.style.cursor = "grab";
 		};
 		const handleMove = (e: MouseEvent | TouchEvent) => {
@@ -175,7 +174,7 @@ export default class App {
 			this.scrollOffset.y = this.lastScrollOffset.y + (y - this.mouseMoveStart.y);
 
 			this.renderer.setOffset(this.scrollOffset);
-			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
+			this.renderer.setVisibleTiles(this.calculateVisibleRegion());
 		};
 		this.appContainer.addEventListener("mousedown", handleMoveStart);
 		this.appContainer.addEventListener("mouseup", handleMoveEnd);
@@ -188,11 +187,11 @@ export default class App {
 		const appContainerResizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
 			this.viewport.width = entries[0].contentRect.width;
 			this.viewport.height = entries[0].contentRect.height;
-			this.renderer.setVisibleTiles(this.calculateVisibleTiles());
+			this.renderer.setVisibleTiles(this.calculateVisibleRegion());
 		});
 		appContainerResizeObserver.observe(this.tileContainer);
 	}
-	calculateVisibleTiles() {
+	calculateVisibleRegion() {
 		const paddedScrollOffset = {
 			x: this.scrollOffset.x + this.tileSize * this.padding,
 			y: this.scrollOffset.y + this.tileSize * this.padding,
