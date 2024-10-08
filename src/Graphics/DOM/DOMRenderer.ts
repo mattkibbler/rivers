@@ -24,7 +24,7 @@ export default class DOMRenderer {
 		this.offset.y = offset.y;
 		this.viewPane.style.transform = `translateX(${this.offset.x}px) translateY(${this.offset.y}px)`;
 	}
-	setVisibleTiles(visible: { startX: number; startY: number; endX: number; endY: number }) {
+	setVisibleRegion(visible: { startX: number; startY: number; endX: number; endY: number }) {
 		// Iterate over current tiles. If they are no longer in view then remove them.
 		for (const tile of this.tileMap.values()) {
 			if (
