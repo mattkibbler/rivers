@@ -12,6 +12,7 @@ Take a look at the project in action:
 
 | Version                | Demo Link       |
 | :--------------------- | :----------------------------------------------- |
+| v0.0.3 | https://mattkibbler.github.io/rivers/version-0.0.3/ |
 | v0.0.2 | https://mattkibbler.github.io/rivers/version-0.0.2/ |
 | v0.0.1 | https://mattkibbler.github.io/rivers/version-0.0.1/ |
 
