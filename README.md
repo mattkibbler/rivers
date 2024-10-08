@@ -16,6 +16,13 @@ Take a look at the project in action:
 | v0.0.2 | https://mattkibbler.github.io/rivers/version-0.0.2/ |
 | v0.0.1 | https://mattkibbler.github.io/rivers/version-0.0.1/ |
 
+## Roadmap
+
+- [x] Add asynchronous tile generation
+- [ ] Create backend service to generate and persist tiles
+- [ ] Add zooming in/out
+- [ ] Allow toggling between "windowed" and "fullscreen" modes
+- [ ] Add less random, more coherent tile generation
 
 
 ## Usage
