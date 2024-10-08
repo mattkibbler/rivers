@@ -31,9 +31,8 @@ export default class APITileService implements TileServiceInterface {
 	loadTileData(x: number, y: number, tile: Tile) {
 		this.buffer.add([x, y, tile]);
 	}
-	generateTile(x: number, y: number) {
+	generateTile(_x: number, _y: number) {
 		const material = getRandomEnumValue(TileMaterial);
-
 		return {
 			zLevel: 0,
 			material: material,

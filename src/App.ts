@@ -1,7 +1,6 @@
 import DOMRenderer from "./Graphics/DOM/DOMRenderer";
 import { el, style } from "./Helpers/DOM";
 import TileServiceInterface from "./Interfaces/TileServiceInterface";
-import SimpleTileService from "./Services/SimpleTileService";
 import APITileService from "./Services/APITileService";
 
 export default class App {

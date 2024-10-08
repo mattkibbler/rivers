@@ -1,7 +1,5 @@
 import App from "@/App";
 import DOMTile from "./DOMTile";
-import TileData from "@/Interfaces/TileData";
-import TileMaterial from "@/Enums/TileMaterial";
 
 export default class DOMRenderer {
 	offset: { x: number; y: number };
