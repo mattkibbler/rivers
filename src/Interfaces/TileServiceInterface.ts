@@ -1,5 +1,6 @@
+import Tile from "./Tile";
 import TileData from "./TileData";
 
 export default interface TileServiceInterface {
-	getTileData: (x: number, y: number) => TileData;
+	loadTileData: (x: number, y: number, tile: Tile) => void;
 }

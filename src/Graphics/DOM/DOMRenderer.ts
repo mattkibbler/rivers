@@ -1,5 +1,7 @@
 import App from "@/App";
 import DOMTile from "./DOMTile";
+import TileData from "@/Interfaces/TileData";
+import TileMaterial from "@/Enums/TileMaterial";
 
 export default class DOMRenderer {
 	offset: { x: number; y: number };
@@ -25,6 +27,7 @@ export default class DOMRenderer {
 		this.viewPane.style.transform = `translateX(${this.offset.x}px) translateY(${this.offset.y}px)`;
 	}
 	setVisibleTiles(visible: { startX: number; startY: number; endX: number; endY: number }) {
+		// Iterate over current tiles. If they are no longer in view then remove them.
 		for (const tile of this.tileMap.values()) {
 			if (
 				tile.x !== null &&
@@ -44,7 +47,7 @@ export default class DOMRenderer {
 		}
 	}
 	private removeTile(tile: DOMTile) {
-		tile.remove();
+		tile.release();
 		this.tilePool.push(tile);
 		this.tileMap.delete(`${tile.x},${tile.y}`);
 	}
@@ -60,7 +63,7 @@ export default class DOMRenderer {
 				? this.tilePool.pop()!
 				: new DOMTile(this.viewPane, this.app.tileSize);
 		tile.place(x, y);
-		tile.setContent(this.app.tileService.getTileData(x, y));
+		this.app.tileService.loadTileData(x, y, tile);
 		return tile;
 	}
 }

@@ -2,6 +2,7 @@ import DOMRenderer from "./Graphics/DOM/DOMRenderer";
 import { el, style } from "./Helpers/DOM";
 import TileServiceInterface from "./Interfaces/TileServiceInterface";
 import SimpleTileService from "./Services/SimpleTileService";
+import APITileService from "./Services/APITileService";
 
 export default class App {
 	appContainer: HTMLElement;
@@ -31,7 +32,7 @@ export default class App {
 		this.viewport.width = this.tileContainer.clientWidth;
 		this.viewport.height = this.tileContainer.clientHeight;
 
-		this.tileService = new SimpleTileService();
+		this.tileService = new APITileService();
 		this.renderer = new DOMRenderer(this);
 
 		this.enableMovement();
@@ -55,13 +56,21 @@ export default class App {
 		const explainerButton = el("button", explainerContainer);
 		const explainerDialog = el("dialog", explainerContainer) as HTMLDialogElement;
 
-		helperText.innerText = "Click and drag within the red box to explore the tile space.";
+		helperText.innerText = "Click and drag around the screen to explore the map.";
 		explainerButton.innerText = "What is this?";
 		explainerDialog.innerHTML = `
-			<p>It's a tile-based map which allows you to move by clicking and dragging. The actual map/tile content will be added soon.</p>
-			<p>Map tiles are DOM elements which are recyled as they move out of view, each displays it's ID number so you can see how they are moved around and re-used.</p>
-			<p>Using a canvas to render the map would make more sense, but I thought it would be more fun to use DOM elements.</p>
-			<p>The red box indicates the edges of the map viewport, the tiles which overflow this box would be hidden in a finished product but they are visible here to illustrate how the tile map works.</p>
+			<p>An exerimental tile-based map exploring the creation of rivers and other water features... water coming soon.</p>
+			<p>This latest iteration introduces asynchronous loading of tiles and generation of basic tile material colours.</p>
+			<p>Tile loading is all local at the moment with a short delay to simulate a call to a server.</p>
+			<h3>Next steps</h3>
+			<ul style="list-style-position: inside">
+				<li>Create a backend to generate and persist tile creation</li>
+				<li>Generate less random, more coherent tile sets</li>
+			</ul>
+			<p><a href="https://github.com/mattkibbler/rivers">More information on Github</a></p>
+			<h3>Previous versions</h3>
+			<p><a href="https://mattkibbler.github.io/rivers/version-0.0.2/">v0.0.2</a></p>
+			<p><a href="https://mattkibbler.github.io/rivers/version-0.0.1/">v0.0.1</a></p>
 			<p><button type="button">Close</button></p>
 		`;
 
@@ -120,6 +129,7 @@ export default class App {
 			right: "25%",
 			bottom: "25%",
 			top: "25%",
+			overflow: "hidden",
 		});
 		return tileContainer;
 	}
