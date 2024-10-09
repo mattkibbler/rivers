@@ -203,8 +203,8 @@ export default class App {
 		const y = -paddedScrollOffset.y / this.tileSize;
 
 		// Calculate the number of tiles that fit in the viewport
-		const tilesAcross = Math.ceil(paddedViewPort.width / this.tileSize);
-		const tilesDown = Math.ceil(paddedViewPort.height / this.tileSize);
+		const tilesAcross = Math.floor(paddedViewPort.width / this.tileSize);
+		const tilesDown = Math.floor(paddedViewPort.height / this.tileSize);
 
 		// Calculate the starting tile indexes based on the scroll position
 		// Round down to make sure we're covering the viewport on the left and right
