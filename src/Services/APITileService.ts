@@ -1,6 +1,6 @@
 import TileMaterial from "@/Enums/TileMaterial";
 import { getRandomEnumValue } from "@/Helpers/Misc";
-import BatchingBuffer from "@/Helpers/Queues/BatchingBuffer";
+import BatchingBuffer from "@/Helpers/Timing/BatchingBuffer";
 import Tile from "@/Interfaces/Tile";
 import TileData from "@/Interfaces/TileData";
 import TileServiceInterface from "@/Interfaces/TileServiceInterface";
