@@ -17,6 +17,7 @@ export default class DOMTile implements Tile {
 	x: number | null;
 	y: number | null;
 	contentEl: HTMLElement;
+	debugEl: HTMLElement | null = null;
 	constructor(container: HTMLElement, size: number) {
 		this.size = size;
 		this.x = null;
@@ -45,12 +46,37 @@ export default class DOMTile implements Tile {
 			opacity: "0",
 			transition: "opacity .5s ease",
 		});
+
+		this.showDebug();
+	}
+	highlight(status: boolean, color: string = "red") {
+		if (status) {
+			this.el.style.border = `1px solid ${color}`;
+		} else {
+			this.el.style.border = "none";
+		}
+	}
+	private showDebug() {
+		this.debugEl = el("div", this.el);
+		style(this.debugEl, {
+			position: "absolute",
+			zIndex: "99",
+			top: "0",
+			right: "0",
+			bottom: "0",
+			left: "0",
+			textAlign: "center",
+			paddingTop: "3px",
+		});
 	}
 	place(x: number, y: number) {
 		this.el.style.display = "block";
 		this.x = x;
 		this.y = y;
 		this.el.style.transform = `translateX(${this.size * x}px) translateY(${this.size * y}px)`;
+		if (this.debugEl) {
+			this.debugEl.innerText = `${this.x},${this.y}`;
+		}
 	}
 	release() {
 		this.el.style.display = "none";

@@ -5,4 +5,5 @@ export default interface Tile {
 	x: number | null;
 	y: number | null;
 	setContent: (tileData: TileData) => void;
+	highlight: (status: boolean) => void;
 }
