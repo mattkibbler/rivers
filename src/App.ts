@@ -36,8 +36,6 @@ export default class App {
 
 		this.enableMovement();
 
-		this.renderer.setVisibleRegion(this.calculateVisibleRegion());
-
 		this.addListeners();
 	}
 	private enableMovement() {
@@ -161,7 +159,6 @@ export default class App {
 			this.mouseMoveStart = null;
 			this.lastScrollOffset = { x: this.scrollOffset.x, y: this.scrollOffset.y };
 			this.renderer.setOffset(this.scrollOffset);
-			this.renderer.setVisibleRegion(this.calculateVisibleRegion());
 			this.appContainer.style.cursor = "grab";
 		};
 		const handleMove = (e: MouseEvent | TouchEvent) => {
