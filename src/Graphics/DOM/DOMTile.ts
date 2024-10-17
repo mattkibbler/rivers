@@ -73,7 +73,7 @@ export default class DOMTile implements Tile {
 		this.el.style.display = "block";
 		this.x = x;
 		this.y = y;
-		this.el.style.transform = `translateX(${this.size * x}px) translateY(${this.size * y}px)`;
+		this.el.style.transform = `translate3d(${this.size * x}px, ${this.size * y}px, 0)`;
 		if (this.debugEl) {
 			this.debugEl.innerText = `${this.x},${this.y}`;
 		}
