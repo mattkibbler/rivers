@@ -34,25 +34,19 @@ export default class APITileService implements TileServiceInterface {
 		this.buffer.add([x, y, tile]);
 	}
 	loadTileRegions(tileRegions: TileRegion[]): Promise<TileDataPacket[]> {
-		return new Promise((resolve) => {
-			setTimeout(() => {
-				const packets = [];
-				for (let i = 0; i < tileRegions.length; i++) {
-					const result = [];
-					for (let y = tileRegions[i].startY; y <= tileRegions[i].endY; y++) {
-						const row = [];
-						for (let x = tileRegions[i].startX; x <= tileRegions[i].endX; x++) {
-							row.push(this.getTile(x, y));
-						}
-						result.push(row);
-					}
-					packets.push({
-						data: result,
-						region: tileRegions[i],
-					});
-				}
-				resolve(packets);
-			}, 500);
+		return new Promise(async (resolve) => {
+			let queryStr = "?";
+			for (let i = 0; i < tileRegions.length; i++) {
+				queryStr += queryStr ? "&" : "";
+				queryStr += `regions[]=${tileRegions[i].startX},${tileRegions[i].startY},${tileRegions[i].endX},${tileRegions[i].endY}`;
+			}
+			const response = await fetch(`http://localhost:8080/tiles/regions${queryStr}`);
+			if (!response.ok) {
+				throw new Error("could not get tile regions");
+			}
+			const data = await response.json();
+
+			resolve(data.packets);
 		});
 	}
 	getTile(x: number, y: number) {

@@ -47,7 +47,7 @@ export default class DOMTile implements Tile {
 			transition: "opacity .5s ease",
 		});
 
-		this.showDebug();
+		// this.showDebug();
 	}
 	highlight(status: boolean, color: string = "red") {
 		if (status) {
@@ -56,7 +56,7 @@ export default class DOMTile implements Tile {
 			this.el.style.border = "none";
 		}
 	}
-	private showDebug() {
+	showDebug() {
 		this.debugEl = el("div", this.el);
 		style(this.debugEl, {
 			position: "absolute",
@@ -85,6 +85,6 @@ export default class DOMTile implements Tile {
 	}
 	setContent(tileData: TileData) {
 		this.contentEl.style.backgroundColor = TILE_COLORS[tileData.material];
-		this.contentEl.style.opacity = "1";
+		this.contentEl.style.opacity = (1 - tileData.zLevel / 256).toString();
 	}
 }

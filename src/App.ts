@@ -1,7 +1,10 @@
 import DOMRenderer from "./Graphics/DOM/DOMRenderer";
 import { el, style } from "./Helpers/DOM";
+import TileCacher from "./Interfaces/TileCacher";
 import TileServiceInterface from "./Interfaces/TileServiceInterface";
 import APITileService from "./Services/APITileService";
+import TileCache from "./Services/TileCache/TileCache";
+import TileRegionResolver from "./Services/TileRegionResolver";
 
 export default class App {
 	appContainer: HTMLElement;
@@ -10,6 +13,7 @@ export default class App {
 	lastScrollOffset: { x: number; y: number };
 	scrollOffset: { x: number; y: number };
 	tileSize: number = 20;
+	regionSize: number = 20;
 	renderer: DOMRenderer;
 	padding: number = 1;
 	helperTextContainer: HTMLElement;
@@ -17,6 +21,7 @@ export default class App {
 	tileContainerFrame: HTMLElement;
 	movementEnabled: boolean = false;
 	tileService: TileServiceInterface;
+	tileCache: TileCacher;
 	constructor(appContainer: HTMLElement) {
 		this.appContainer = appContainer;
 		this.mouseMoveStart = null;
@@ -32,7 +37,13 @@ export default class App {
 		this.viewport.height = this.tileContainer.clientHeight;
 
 		this.tileService = new APITileService();
-		this.renderer = new DOMRenderer(this);
+		this.tileCache = new TileCache();
+		this.renderer = new DOMRenderer(
+			this.tileContainer,
+			this.tileSize,
+			this.regionSize,
+			new TileRegionResolver(this.tileCache, this.tileService)
+		);
 
 		this.enableMovement();
 

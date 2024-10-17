@@ -1,31 +1,120 @@
-import App from "@/App";
 import DOMTile from "./DOMTile";
 import throttle from "@/Helpers/Timing/Throttle";
 import TileRegion from "@/Interfaces/TileRegion";
 import TileDataPacket from "@/Interfaces/TileDataPacket";
+import { el, style } from "@/Helpers/DOM";
+import TileData from "@/Interfaces/TileData";
+import TileRegionResolver from "@/Services/TileRegionResolver";
+
+const DEBUG_REGION_COLORS = [
+	"#FF0000", // (Red)
+	"#00FF00", // (Lime)
+	"#0000FF", // (Blue)
+	"#FFFF00", // (Yellow)
+	"#00FFFF", // (Cyan)
+	"#FF00FF", // (Magenta)
+	"#800000", // (Maroon)
+	"#008000", // (Green)
+	"#000080", // (Navy)
+	"#808000", // (Olive)
+	"#008080", // (Teal)
+	"#800080", // (Purple)
+	"#FF4500", // (Orange Red)
+	"#2E8B57", // (Sea Green)
+	"#B22222", // (Firebrick)
+	"#FF6347", // (Tomato)
+	"#4682B4", // (Steel Blue)
+	"#FF1493", // (Deep Pink)
+	"#FF69B4", // (Hot Pink)
+	"#00CED1", // (Dark Turquoise)
+	"#1E90FF", // (Dodger Blue)
+	"#FFD700", // (Gold)
+	"#FF8C00", // (Dark Orange)
+	"#ADFF2F", // (Green Yellow)
+	"#9932CC", // (Dark Orchid)
+	"#8A2BE2", // (Blue Violet)
+	"#FF00FF", // (Fuchsia)
+	"#9400D3", // (Dark Violet)
+	"#32CD32", // (Lime Green)
+	"#7FFF00", // (Chartreuse)
+	"#FFA500", // (Orange)
+	"#DC143C", // (Crimson)
+	"#00BFFF", // (Deep Sky Blue)
+	"#FF4500", // (Orange Red)
+	"#00FA9A", // (Medium Spring Green)
+	"#FFB6C1", // (Light Pink)
+	"#DA70D6", // (Orchid)
+	"#20B2AA", // (Light Sea Green)
+	"#40E0D0", // (Turquoise)
+	"#87CEEB", // (Sky Blue)
+	"#6A5ACD", // (Slate Blue)
+	"#FFFFE0", // (Light Yellow)
+	"#BA55D3", // (Medium Orchid)
+	"#FFDEAD", // (Navajo White)
+	"#D2691E", // (Chocolate)
+	"#8B4513", // (Saddle Brown)
+	"#228B22", // (Forest Green)
+	"#5F9EA0", // (Cadet Blue)
+	"#FFDAB9", // (Peach Puff)
+	"#B0E0E6", // (Powder Blue)
+];
+
+const TILE_STORE: { [key: string]: TileData } = {};
 
 export default class DOMRenderer {
 	offset: { x: number; y: number };
 	viewPane: HTMLElement;
-	app: App;
 	tileMap: Map<string, DOMTile>;
 	tilePool: DOMTile[];
 	visibleContentRegion: TileRegion | null;
 	scheduleUpdateVisibleContentRegion: (region: TileRegion) => void;
-	constructor(app: App) {
-		this.offset = { x: 0, y: 0 };
+	debugRegions: HTMLElement[] = [];
+	tileContainer: HTMLElement;
+	tileSize: number;
+	regionSize: number;
+	tileRegionResolver: TileRegionResolver;
+	constructor(
+		tileContainer: HTMLElement,
+		tileSize: number,
+		regionSize: number,
+		tileRegionResolver: TileRegionResolver
+	) {
+		this.tileContainer = tileContainer;
+		this.tileSize = tileSize;
+		this.regionSize = regionSize;
+		this.tileRegionResolver = tileRegionResolver;
 
-		this.app = app;
+		this.offset = { x: 0, y: 0 };
 
 		this.tileMap = new Map();
 		this.tilePool = [];
 
 		this.visibleContentRegion = null;
-		this.scheduleUpdateVisibleContentRegion = throttle(this.updateVisibleContentRegion, 1000);
+		this.scheduleUpdateVisibleContentRegion = throttle(this.updateVisibleContentRegion, 500);
 
 		this.viewPane = document.createElement("div");
 		this.viewPane.setAttribute("id", "rendererViewPane");
-		this.app.tileContainer.appendChild(this.viewPane);
+		this.tileContainer.appendChild(this.viewPane);
+	}
+	clearDebugRegions() {
+		for (let i = 0; i < this.debugRegions.length; i++) {
+			this.debugRegions[i].remove();
+		}
+		this.debugRegions = [];
+	}
+	drawDebugRegions(regions: TileRegion[]) {
+		for (let i = 0; i < regions.length; i++) {
+			const regionEl = el("div", this.viewPane);
+			style(regionEl, {
+				position: "absolute",
+				left: `${regions[i].startX * this.tileSize}px`,
+				top: `${regions[i].startY * this.tileSize}px`,
+				width: `${(regions[i].endX - regions[i].startX) * this.tileSize}px`,
+				height: `${(regions[i].endY - regions[i].startY) * this.tileSize}px`,
+				border: `1px solid ${DEBUG_REGION_COLORS[this.debugRegions.length]}`,
+			});
+			this.debugRegions.push(regionEl);
+		}
 	}
 	setOffset(offset: { x: number; y: number }) {
 		this.offset.x = offset.x;
@@ -33,6 +122,13 @@ export default class DOMRenderer {
 		this.viewPane.style.transform = `translateX(${this.offset.x}px) translateY(${this.offset.y}px)`;
 	}
 	setVisibleRegion(visible: TileRegion) {
+		//this.clearDebugRegions();
+		//this.drawDebugRegions([visible]);
+
+		if (this.visibleContentRegion !== null) {
+			//this.drawDebugRegions([this.visibleContentRegion]);
+		}
+
 		// Iterate over current tiles. If they are no longer in view then remove them.
 		for (const tile of this.tileMap.values()) {
 			if (
@@ -58,77 +154,30 @@ export default class DOMRenderer {
 		}
 	}
 	private updateVisibleContentRegion(regionToShow: TileRegion) {
-		let newRegionX: TileRegion | null = null;
-		let newRegionY: TileRegion | null = null;
+		//this.clearDebugRegions();
 		const regionsToLoad: TileRegion[] = [];
 
-		// If no visible content region set then the map is empty so simply load the entire visible region
-		if (this.visibleContentRegion === null) {
-			regionsToLoad.push(regionToShow);
-		} else {
-			// If we need to load more tiles on the X axis...
-			if (
-				regionToShow.startX !== this.visibleContentRegion.startX ||
-				regionToShow.endX !== this.visibleContentRegion.endX
-			) {
-				newRegionX = { startX: 0, startY: 0, endX: 0, endY: 0 };
-				// new region is to the left
-				if (regionToShow.startX < this.visibleContentRegion.startX) {
-					newRegionX.startX = regionToShow.startX;
-					newRegionX.endX = this.visibleContentRegion.startX - 1;
-					newRegionX.startY = regionToShow.startY;
-					newRegionX.endY = regionToShow.endY;
-					// new region is to the right
-				} else if (regionToShow.endX > this.visibleContentRegion.endX) {
-					newRegionX.startX = this.visibleContentRegion.endX + 1;
-					newRegionX.endX = regionToShow.endX;
-					newRegionX.startY = regionToShow.startY;
-					newRegionX.endY = regionToShow.endY;
-				}
+		// Calculate which regions the start and end coordinates fall into
+		const startRegionX = Math.floor(regionToShow.startX / this.regionSize);
+		const startRegionY = Math.floor(regionToShow.startY / this.regionSize);
+		const endRegionX = Math.floor((regionToShow.endX + this.regionSize - 1) / this.regionSize); // Round up for endX
+		const endRegionY = Math.floor((regionToShow.endY + this.regionSize - 1) / this.regionSize); // Round up for endY
 
-				regionsToLoad.push(newRegionX);
-			}
-			// If we need to load more tiles on the Y axis...
-			if (
-				regionToShow.startY !== this.visibleContentRegion.startY ||
-				regionToShow.endY !== this.visibleContentRegion.endY
-			) {
-				newRegionY = { startX: 0, startY: 0, endX: 0, endY: 0 };
-				let startX = regionToShow.startX;
-				let endX = regionToShow.endX;
-				// If there are also new tiles to load on the x axis, make sure not to include them when selecting new tiles on the Y axis...
-
-				// New regions are to the top and the left
-				if (newRegionX && newRegionX.startX < this.visibleContentRegion.startX) {
-					startX = newRegionX.endX + 1;
-					endX = regionToShow.endX;
-					// New regions are to the top and the right
-				} else if (newRegionX && newRegionX.endX > this.visibleContentRegion.endX) {
-					startX = regionToShow.startX;
-					endX = newRegionX.startX - 1;
-				}
-
-				// New region to the top
-				if (regionToShow.startY < this.visibleContentRegion.startY) {
-					newRegionY.startX = startX;
-					newRegionY.endX = endX;
-					newRegionY.startY = regionToShow.startY;
-					newRegionY.endY = this.visibleContentRegion.startY - 1;
-					// Else new region to the bottom
-				} else if (regionToShow.endY > this.visibleContentRegion.endY) {
-					newRegionY.startX = startX;
-					newRegionY.endX = endX;
-					newRegionY.startY = this.visibleContentRegion.endY + 1;
-					newRegionY.endY = regionToShow.endY;
-				}
-
-				regionsToLoad.push(newRegionY);
+		// Iterate through the regions in the visible range
+		for (let regionX = startRegionX; regionX <= endRegionX; regionX++) {
+			for (let regionY = startRegionY; regionY <= endRegionY; regionY++) {
+				regionsToLoad.push({
+					startX: regionX * this.regionSize,
+					startY: regionY * this.regionSize,
+					endX: regionX * this.regionSize + this.regionSize,
+					endY: regionY * this.regionSize + this.regionSize,
+				});
 			}
 		}
 
-		this.app.tileService
-			.loadTileRegions(regionsToLoad)
-			.then(this.setTileRegionContent.bind(this));
+		// this.drawDebugRegions(regionsToLoad);
+
+		this.tileRegionResolver.resolve(regionsToLoad).then(this.setTileRegionContent.bind(this));
 
 		this.visibleContentRegion = regionToShow;
 	}
@@ -141,13 +190,22 @@ export default class DOMRenderer {
 		const tileKey = `${x},${y}`;
 		if (!this.tileMap.has(tileKey)) {
 			this.tileMap.set(tileKey, this.getTile(x, y)); // Store tile reference
+			if (
+				this.visibleContentRegion &&
+				x >= this.visibleContentRegion.startX &&
+				x <= this.visibleContentRegion.endX &&
+				y >= this.visibleContentRegion.startY &&
+				y <= this.visibleContentRegion.endY
+			) {
+				this.tileMap.get(tileKey)?.setContent(TILE_STORE[tileKey]);
+			}
 		}
 	}
 	private getTile(x: number, y: number): DOMTile {
 		const tile =
 			this.tilePool.length > 0
 				? this.tilePool.pop()!
-				: new DOMTile(this.viewPane, this.app.tileSize);
+				: new DOMTile(this.viewPane, this.tileSize);
 		tile.place(x, y);
 		// this.app.tileService.loadTileData(x, y, tile);
 		return tile;
@@ -160,6 +218,7 @@ export default class DOMRenderer {
 				xIndex = 0;
 				for (let x = tilePackets[i].region.startX; x <= tilePackets[i].region.endX; x++) {
 					const key = `${x},${y}`;
+					TILE_STORE[key] = tilePackets[i].data[yIndex][xIndex];
 					if (this.tileMap.has(key)) {
 						this.tileMap.get(key)!.setContent(tilePackets[i].data[yIndex][xIndex]);
 					}
