@@ -1,10 +1,11 @@
 import TileMaterial from "@/Enums/TileMaterial";
+import { adjustColorBrightness } from "@/Helpers/Colors";
 import { el, style } from "@/Helpers/DOM";
 import Tile from "@/Interfaces/Tile";
 import TileData from "@/Interfaces/TileData";
 
 const TILE_COLORS = {
-	[TileMaterial.STONE]: "#808080", // Gray
+	[TileMaterial.STONE]: "#AAAAAA", // Gray
 	[TileMaterial.GRASS]: "#00FF00", // Green
 	[TileMaterial.DIRT]: "#8B4513", // Brown
 };
@@ -84,7 +85,10 @@ export default class DOMTile implements Tile {
 		this.contentEl.style.opacity = "0";
 	}
 	setContent(tileData: TileData) {
-		this.contentEl.style.backgroundColor = TILE_COLORS[tileData.material];
-		this.contentEl.style.opacity = (1 - tileData.zLevel / 256).toString();
+		this.contentEl.style.backgroundColor = adjustColorBrightness(
+			TILE_COLORS[tileData.material],
+			1 - tileData.zLevel / 256
+		);
+		this.contentEl.style.opacity = "1";
 	}
 }
