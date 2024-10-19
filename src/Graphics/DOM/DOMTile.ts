@@ -1,3 +1,4 @@
+import { MAX_Z_LEVEL } from "@/Contants";
 import TileMaterial from "@/Enums/TileMaterial";
 import { adjustColorBrightness } from "@/Helpers/Colors";
 import { el, style } from "@/Helpers/DOM";
@@ -87,7 +88,7 @@ export default class DOMTile implements Tile {
 	setContent(tileData: TileData) {
 		this.contentEl.style.backgroundColor = adjustColorBrightness(
 			TILE_COLORS[tileData.material],
-			1 - tileData.zLevel / 256
+			1 - tileData.zLevel / MAX_Z_LEVEL
 		);
 		this.contentEl.style.opacity = "1";
 	}
