@@ -35,6 +35,7 @@ export default class APITileService implements TileServiceInterface {
 		this.buffer.add([x, y, tile]);
 	}
 	loadTileRegions(tileRegions: TileRegion[]): Promise<TileDataPacket[]> {
+		const useJson = false;
 		return new Promise(async (resolve) => {
 			let queryStr = "?";
 			for (let i = 0; i < tileRegions.length; i++) {
@@ -43,17 +44,66 @@ export default class APITileService implements TileServiceInterface {
 			}
 			const response = await fetch(`${Env.apiUrl}/api/v1/tiles/regions${queryStr}`, {
 				headers: {
-					Accept: "application/json",
+					Accept: useJson ? "application/json" : "application/octet-stream",
 				},
 			});
 			if (!response.ok) {
 				throw new Error("could not get tile regions");
 			}
-			const data = await response.json();
-
-			resolve(data.packets);
+			if (useJson) {
+				const data = await response.json();
+				resolve(data.packets);
+			} else {
+				const data = await response.arrayBuffer();
+				resolve(this.decodePackets(data));
+			}
 		});
 	}
+	decodePackets(buf: ArrayBuffer): TileDataPacket[] {
+		const result: TileDataPacket[] = [];
+		const byteArray = new Uint8Array(buf);
+
+		let i = -1;
+		while (i < byteArray.length - 1) {
+			// Read the region data (first 8 bytes)
+			const startX = byteArray[++i] | (byteArray[++i] << 8); // Combine first two bytes
+			const startY = byteArray[++i] | (byteArray[++i] << 8); // Combine next two bytes
+			const endX = byteArray[++i] | (byteArray[++i] << 8); // Combine next two bytes
+			const endY = byteArray[++i] | (byteArray[++i] << 8); // Combine last two bytes
+			// Convert to signed int16
+			const signedStartX = startX >= 32768 ? startX - 65536 : startX;
+			const signedStartY = startY >= 32768 ? startY - 65536 : startY;
+			const signedEndX = endX >= 32768 ? endX - 65536 : endX;
+			const signedEndY = endY >= 32768 ? endY - 65536 : endY;
+			// Read the rest of the packet data, which will be the tile values
+			const packetData: TileData[][] = [[]];
+			let yIndex = 0;
+			for (let y = signedStartY; y <= signedEndY; y++) {
+				packetData.push([]);
+				for (let x = signedStartX; x <= signedEndX; x++) {
+					const material = byteArray[++i]; // Read Material (1 byte)
+					const zLevel = byteArray[++i]; // Read ZLevel (1 byte)
+					packetData[yIndex].push({
+						zLevel,
+						material,
+					});
+				}
+				yIndex += 1;
+			}
+
+			result.push({
+				region: {
+					startX: signedStartX,
+					startY: signedStartY,
+					endX: signedEndX,
+					endY: signedEndY,
+				},
+				data: packetData,
+			});
+		}
+		return result;
+	}
+
 	getTile(x: number, y: number) {
 		const key = `${x},${y}`;
 		if (!TILE_STORE[key]) {
