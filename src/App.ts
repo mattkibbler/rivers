@@ -68,15 +68,16 @@ export default class App {
 		explainerButton.innerText = "What is this?";
 		explainerDialog.innerHTML = `
 			<p>An exerimental tile-based map exploring the creation of rivers and other water features... water coming soon.</p>
-			<p>This latest iteration introduces asynchronous loading of tiles and generation of basic tile material colours.</p>
-			<p>Tile loading is all local at the moment with a short delay to simulate a call to a server.</p>
+			<p>This latest iteration introduces a slightly different way of grouping tiles for requesting them from the server, instead of grouping tiles into arbitrary blocks to load from the server we now divide the map into contiguous blocks of X tiles.</p>
 			<h3>Next steps</h3>
 			<ul style="list-style-position: inside">
-				<li>Create a backend to generate and persist tile creation</li>
-				<li>Generate less random, more coherent tile sets</li>
+				<li>Improve map generation from the server</li>
+				<li>Create a custom tile data transfer protocol so we can simply receive binary data from the server, reducing payload size and parsing time compared to JSON</li>
+				<li>Add water!</li>
 			</ul>
 			<p><a href="https://github.com/mattkibbler/rivers">More information on Github</a></p>
 			<h3>Previous versions</h3>
+			<p><a href="https://mattkibbler.github.io/rivers/version-0.0.3/">v0.0.3</a></p>
 			<p><a href="https://mattkibbler.github.io/rivers/version-0.0.2/">v0.0.2</a></p>
 			<p><a href="https://mattkibbler.github.io/rivers/version-0.0.1/">v0.0.1</a></p>
 			<p><button type="button">Close</button></p>
