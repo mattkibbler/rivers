@@ -41,7 +41,11 @@ export default class APITileService implements TileServiceInterface {
 				queryStr += queryStr ? "&" : "";
 				queryStr += `regions[]=${tileRegions[i].startX},${tileRegions[i].startY},${tileRegions[i].endX},${tileRegions[i].endY}`;
 			}
-			const response = await fetch(`${Env.apiUrl}/tiles/regions${queryStr}`);
+			const response = await fetch(`${Env.apiUrl}/tiles/regions${queryStr}`, {
+				headers: {
+					Accept: "application/json",
+				},
+			});
 			if (!response.ok) {
 				throw new Error("could not get tile regions");
 			}
