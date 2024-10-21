@@ -12,6 +12,7 @@ Take a look at the project in action:
 
 | Version                | Demo Link       |
 | :--------------------- | :----------------------------------------------- |
+| v0.0.4 | https://mattkibbler.github.io/rivers/version-0.0.4/ |
 | v0.0.3 | https://mattkibbler.github.io/rivers/version-0.0.3/ |
 | v0.0.2 | https://mattkibbler.github.io/rivers/version-0.0.2/ |
 | v0.0.1 | https://mattkibbler.github.io/rivers/version-0.0.1/ |
@@ -19,13 +20,23 @@ Take a look at the project in action:
 ## Roadmap
 
 - [x] Add asynchronous tile generation
-- [ ] Create backend service to generate and persist tiles
+- [x] Create backend service to generate and persist tiles
+- [x] Add less random, more coherent tile generation
 - [ ] Add zooming in/out
 - [ ] Allow toggling between "windowed" and "fullscreen" modes
-- [ ] Add less random, more coherent tile generation
+
 
 
 ## Usage
+
+### Environment variables
+The following environment variables must be set in the root `.env` file.
+
+| Key                | Value                                            |
+| :--------------------- | :------------------------------------------- |
+| VITE_API_URL          | The address of the tile-generation server   |
+
+### Build commands
 
 The project is compiled using Vite. All commands are run from the root of the project, from a terminal:
 
