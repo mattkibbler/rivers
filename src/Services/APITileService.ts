@@ -1,4 +1,5 @@
 import TileMaterial from "@/Enums/TileMaterial";
+import { Env } from "@/Env";
 import { getRandomEnumValue } from "@/Helpers/Misc";
 import BatchingBuffer from "@/Helpers/Timing/BatchingBuffer";
 import Tile from "@/Interfaces/Tile";
@@ -40,7 +41,7 @@ export default class APITileService implements TileServiceInterface {
 				queryStr += queryStr ? "&" : "";
 				queryStr += `regions[]=${tileRegions[i].startX},${tileRegions[i].startY},${tileRegions[i].endX},${tileRegions[i].endY}`;
 			}
-			const response = await fetch(`http://localhost:8080/tiles/regions${queryStr}`);
+			const response = await fetch(`${Env.apiUrl}/tiles/regions${queryStr}`);
 			if (!response.ok) {
 				throw new Error("could not get tile regions");
 			}
