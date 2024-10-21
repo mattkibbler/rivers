@@ -17,7 +17,7 @@ jobs:
                   npm install
                   npm run build -- --mode=github
               env:
-                  VITE_API_URL: ${{ vars.VITE_API_URL }}
+                  VITE_API_URL: https://rivers-api.mattkibbler.com
 
             - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
